@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>制作视频播放器</title>
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/player.css">
+</head>
+<body>
+<figure>
+    <!--<figcaption>视频播放器</figcaption>-->
+    <div class="player">
+        <video src="./video/fun.mp4"></video>
+        <div class="controls">
+            <!-- 播放/暂停 -->
+            <a href="javascript:;" class="switch fa fa-play"></a>
+            <!-- 全屏 -->
+            <a href="javascript:;" class="expand fa fa-expand"></a>
+            <!-- 进度条 -->
+            <div class="progress">
+                <div class="loaded"></div>
+                <!--默认宽度是0%-->
+                <div class="line"></div>
+                <div class="bar"></div>
+            </div>
+            <!-- 时间 -->
+            <div class="timer">
+                <span class="current">00:00:00</span> /
+                <span class="total">00:00:00</span>
+            </div>
+            <!-- 声音 -->
+        </div>
+    </div>
+</figure>
+<script src="./js/jquery.min.js"></script>
+<script src="./js/moment.min.js"></script>
+<script>
+    //知识点:
+    //1:oncanplay:判断当前视频能否播放
+    //2:video.duration:计算视频总的持续时间(即播放时间)
+    //3:$(".switch").toggleClass("fa-play fa-pause");
+    //4:video.ontimeupdate()=function(){}:当视频播放时就立即触发该事件,及时更新已播放的时间;
+    //1)获取相应的标签
+    var video=$("video")[0];
+    //2)判断当前video是否可以播放,如果可以播放,让它显示出来
+    video.oncanplay=function(){
+        video.style.display="block";
+        //3)计算视频总的播放时间,让它显示出来
+        var totalTime=calTime(video.duration);
+        $(".total").html(totalTime);
+        //4)设置点击事件,控制视频的播放和暂停
+        $(".switch").click(function(){
+            //根据视频是播放还是暂停显示按钮
+            $(this).toggleClass("fa-play fa-pause");
+            //如果当前视频为暂停状态,点击则播放视频;
+            if(video.paused){
+                video.play();
+            }else{
+                video.pause();
+            }
+        })
+        //5)计算视频到目前为止已播放的时间,让它显示出来
+        video.ontimeupdate=function(){
+            //6)根据当前已播放的时间和总的播放时间的比例显示相应的进度条
+            var value=0;
+            if(video.currentTime>0){
+                value=(video.currentTime/video.duration)*100+"%";
+                $(".line").css("width",value);
+            }
+            var currentTime=calTime(video.currentTime);
+            $(".current").html(currentTime);
+        }
+        //7)控制是否全屏显示
+        $(".expand").click(function(){
+            video.webkitRequestFullScreen();
+        })
+    }
+
+    //计算视频播放时间和持续时间的函数
+    function calTime(timeType){
+        var totalTime=timeType;
+        var h=Math.floor(totalTime/3600);
+        var m=Math.floor(totalTime%3600/60);
+        var s=Math.floor(totalTime%50);
+        h=h<10?"0"+h:h;
+        m=m<10?"0"+m:m;
+        s=s<10?"0"+s:s;
+        var totalTime=h+":"+m+":"+s;
+        return totalTime;
+    }
+</script>
+</body>
+</html>
